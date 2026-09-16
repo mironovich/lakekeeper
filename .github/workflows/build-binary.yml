@@ -1,0 +1,32 @@
+name: Build Lakekeeper binary (amd64)
+
+on:
+  push:
+    branches:
+      - "**"
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly-2026-04-12
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Build [Cargo]
+        run: cargo build --all-features --release --locked --target x86_64-unknown-linux-gnu --bin lakekeeper
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: lakekeeper-x86_64-unknown-linux-gnu
+          path: target/x86_64-unknown-linux-gnu/release/lakekeeper
+          if-no-files-found: error
